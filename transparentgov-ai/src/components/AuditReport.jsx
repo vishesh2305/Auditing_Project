@@ -1,7 +1,8 @@
 import React from 'react';
-import SeverityBadge from './SeverityBadge'; // Assuming this exists and is flexible
+import SeverityBadge from './SeverityBadge';
+import { exportToMarkdown } from '../utils/exportUtils';
 
-const AuditReport = ({ result }) => {
+const AuditReport = ({ result, auditType, inputText }) => {
   if (!result) return null;
 
   if (result.error) {
@@ -16,8 +17,24 @@ const AuditReport = ({ result }) => {
   const findingsKey = Object.keys(result).find(key => Array.isArray(result[key]));
   const findings = findingsKey ? result[findingsKey] : [];
 
+  const handleExport = () => {
+    exportToMarkdown(result, auditType, inputText);
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 mt-8">
+      {/* Header with Export Button */}
+      <div className="flex justify-between items-center border-b pb-2">
+        <h2 className="text-2xl font-bold">Audit Report</h2>
+        <button
+          onClick={handleExport}
+          className="px-4 py-2 bg-gray-700 text-white font-semibold rounded-md hover:bg-gray-800 transition-colors text-sm"
+        >
+          Export to Markdown
+        </button>
+      </div>
+
+      {/* Summary Section */}
       {result.summary && (
         <div>
           <h2 className="text-2xl font-bold mb-3 border-b pb-2">Audit Summary</h2>
@@ -25,13 +42,16 @@ const AuditReport = ({ result }) => {
         </div>
       )}
 
+      {/* Findings Section */}
       <div>
         <h2 className="text-2xl font-bold mb-4 border-b pb-2">Detailed Findings</h2>
         <div className="space-y-6">
           {findings.length > 0 ? findings.map((item, index) => (
             <div key={index} className="bg-white p-6 rounded-lg shadow-lg border">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-xl font-semibold text-gray-800">{item.title || item.issue || item.area}</h3>
+                <h3 className="text-xl font-semibold text-gray-800">
+                  {item.title || item.issue || item.area || `Finding ${index + 1}`}
+                </h3>
                 {item.severity && <SeverityBadge severity={item.severity} />}
               </div>
               <div className="space-y-4">
@@ -39,8 +59,12 @@ const AuditReport = ({ result }) => {
                   if (['title', 'issue', 'area', 'severity'].includes(key)) return null;
                   return (
                     <div key={key}>
-                      <h4 className="font-semibold text-gray-600 capitalize">{key.replace('_', ' ')}</h4>
-                      <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded-md border border-gray-200 font-mono text-sm">{value}</p>
+                      <h4 className="font-semibold text-gray-600 capitalize">
+                        {key.replace(/_/g, ' ')}
+                      </h4>
+                      <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded-md border border-gray-200 font-mono text-sm">
+                        {value}
+                      </p>
                     </div>
                   );
                 })}

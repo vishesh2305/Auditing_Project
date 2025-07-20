@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Sparkles, Loader } from 'lucide-react';
 import { auditedSystems } from '../data/auditedSystems';
-import {generateWithLocalLLM} from '../services/LLM.js';
+import {
+  analyzeWithAI,
+  generateWithLocalLLM,
+  analyzePolicyStructured
+} from '../services/LLM.js';
 
 export default function RemediationSimulator() {
   const biasedSystems = auditedSystems.filter(s => s.status === 'Bias Detected');

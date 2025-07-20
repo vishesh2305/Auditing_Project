@@ -55,6 +55,7 @@ const PROMPT_TEMPLATES = {
   }
 };
 
+// 🔍 Main structured audit function (based on templates)
 export const analyzeWithAI = async (auditType, inputText) => {
   const template = PROMPT_TEMPLATES[auditType];
   if (!template) {
@@ -62,16 +63,16 @@ export const analyzeWithAI = async (auditType, inputText) => {
   }
 
   const prompt = `
-    ${template.persona}
-    Your task is to ${template.task}
-    Provide your response strictly in the following JSON format. Do not include any text, markdown, or explanations outside of the single JSON object.
-    The required JSON structure is:
-    ${template.json_structure}
+${template.persona}
+Your task is to ${template.task}
+Provide your response strictly in the following JSON format. Do not include any text, markdown, or explanations outside of the single JSON object.
+The required JSON structure is:
+${template.json_structure}
 
-    Here is the content to analyze:
-    ---
-    ${inputText}
-    ---
+Here is the content to analyze:
+---
+${inputText}
+---
   `;
 
   const controller = new AbortController();
@@ -98,4 +99,34 @@ export const analyzeWithAI = async (auditType, inputText) => {
       message: "Could not communicate with the local AI model. Please ensure the backend server and Ollama are running correctly."
     };
   }
+};
+
+// 🧠 Freeform simulation or markdown-style input (used by RemediationSimulator)
+export const generateWithLocalLLM = async (prompt) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to fetch from the local LLM proxy');
+    }
+
+    return await response.text(); // Freeform result for raw display
+  } catch (error) {
+    return `<p class="text-red-600 font-semibold">❌ Local LLM unavailable. Check your server and Ollama instance.</p>`;
+  }
+};
+
+// 🔐 Custom wrapper for analyzing structured policies (e.g., JSON objects)
+export const analyzePolicyStructured = async (structuredPolicyText) => {
+  return analyzeWithAI('security-policy', structuredPolicyText);
 };
