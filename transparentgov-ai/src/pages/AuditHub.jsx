@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import AuditTypeSelector from '../components/AuditTypeSelector';
 import AuditInput from '../components/AuditInput';
 import AuditReport from '../components/AuditReport';
-import { analyzeWithAI } from '../services/LLM'; 
+import { analyzeWithAI } from '../services/LLM';
+import { saveAuditReport } from '../services/historyService'; // 👈 IMPORT
 
 const AuditHub = () => {
   const [auditType, setAuditType] = useState('security-policy');
@@ -14,14 +15,27 @@ const AuditHub = () => {
     if (!inputText.trim()) {
       return;
     }
-    
+
     setIsLoading(true);
     setAnalysisResult(null);
 
-    const result = await analyzeWithAI(auditType, inputText);
-    
-    setAnalysisResult(result);
-    setIsLoading(false);
+    try {
+      const result = await analyzeWithAI(auditType, inputText);
+      setAnalysisResult(result);
+      setIsLoading(false);
+
+      if (result && !result.error) {
+        await saveAuditReport({
+          auditType: auditType,
+          summary: result.summary || '',
+          findings: result[Object.keys(result).find(key => Array.isArray(result[key]))] || [],
+          originalInput: inputText,
+        });
+      }
+    } catch (error) {
+      console.error("Audit failed:", error);
+      setIsLoading(false);
+    }
   };
 
   return (
