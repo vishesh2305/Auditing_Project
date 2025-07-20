@@ -1,0 +1,28 @@
+// src/components/AuditCard.jsx
+import React from 'react';
+import StatusBadge from './StatusBadge';
+
+export default function AuditCard({ system, onSelect, isCompareMode, onSelectForCompare, isSelected }) {
+  return (
+    <div
+      className={`bg-white rounded-lg shadow-lg hover:shadow-2xl p-6 relative ${isCompareMode ? 'cursor-pointer' : ''} ${isSelected ? 'ring-2 ring-pink-500' : ''}`}
+      onClick={() => isCompareMode ? onSelectForCompare(system.id) : onSelect(system)}
+    >
+      {isCompareMode && (
+        <div className="absolute top-2 right-2">
+          <input type="checkbox" checked={isSelected} readOnly className="h-5 w-5 text-pink-600 border-gray-300 rounded" />
+        </div>
+      )}
+      <div className="flex justify-between items-start">
+        <h3 className="text-xl font-bold text-gray-800 mb-2">{system.name}</h3>
+        <StatusBadge status={system.status} />
+      </div>
+      <p className="text-sm text-gray-500 mb-4">{system.agency}</p>
+      <p className="text-gray-600 mb-4">{system.description}</p>
+      <div className="flex justify-between items-center text-sm text-gray-500">
+        <span>Fairness Score: <span className="font-bold text-blue-600">{system.fairnessScore}</span></span>
+        <span>Last Audit: {system.lastAudit}</span>
+      </div>
+    </div>
+  );
+}
