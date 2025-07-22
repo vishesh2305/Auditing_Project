@@ -49,3 +49,16 @@ export const exportToMarkdown = (result, auditType, inputText) => {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
+
+
+export const copyToClipboard = (text) => {
+  navigator.clipboard.writeText(text).then(
+    () => {
+      alert('Code copied to clipboard !');
+    },
+    (err) => {
+      console.error('Failed to copy text: ', err);
+      alert('Failed to copy code. See console for details.');
+    }
+  )
+}

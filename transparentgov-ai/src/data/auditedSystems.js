@@ -1,3 +1,5 @@
+// src/data/auditedSystems.js
+
 export const auditedSystems = [
   {
     id: "1",
@@ -25,6 +27,24 @@ export const auditedSystems = [
     status: "Bias Detected",
     lastAudit: "2024-03-21",
     description: "Used to predict crime hotspots and allocate police resources.",
+    vulnerableCode: `
+function assignPatrolAreas(historicalData) {
+  // WARNING: This logic is overly simplistic and biased.
+  // It heavily relies on historical arrest data from specific pin codes,
+  // which can reinforce existing biases.
+  const highRiskPinCodes = ["110021", "110025", "110044"];
+
+  let patrolAssignments = {};
+
+  for (const record of historicalData) {
+    if (highRiskPinCodes.includes(record.pin_code)) {
+      patrolAssignments[record.pin_code] = (patrolAssignments[record.pin_code] || 0) + 2; // High priority
+    } else {
+      patrolAssignments[record.pin_code] = (patrolAssignments[record.pin_code] || 0) + 1; // Standard priority
+    }
+  }
+  return patrolAssignments;
+}`,
     biasDetails: {
       impact: "Higher false positives in Dalit and Muslim neighborhoods",
       affectedGroups: ["Dalits", "Muslims"],

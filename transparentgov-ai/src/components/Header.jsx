@@ -17,7 +17,7 @@ const Header = () => {
         <div className="hidden md:flex items-center space-x-6">
           <NavLink to="/" className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}>Audits</NavLink>
           <NavLink to="/sandbox" className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}>Policy Sandbox</NavLink>
-          <NavLink to="/simulator" className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}>Remediation Simulator</NavLink>
+          <NavLink to="/remediation-simulator" className={({ isActive }) => isActive ? activeLinkClass : inactiveLinkClass}>Remediation Simulator</NavLink>
           <NavLink to="/document-auditor" className={({ isActive }) =>
             `px-3 py-2 rounded-md text-sm font-medium ${isActive
               ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
