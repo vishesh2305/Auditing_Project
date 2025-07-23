@@ -64,10 +64,15 @@ export const analyzeWithAI = async (auditType, inputText) => {
 
   const prompt = `
 ${template.persona}
-Your task is to ${template.task}
-Provide your response strictly in the following JSON format. Do not include any text, markdown, or explanations outside of the single JSON object.
-The required JSON structure is:
+Your task is to ${template.task}.
+
+Your response MUST be a single, valid JSON object. Do not include any other text, conversational filler, markdown, or explanations before or after the JSON object.
+The JSON object must strictly adhere to the following structure. Do not add, remove, or rename any keys.
+
+Required JSON structure:
+\`\`\`json
 ${template.json_structure}
+\`\`\`
 
 Here is the content to analyze:
 ---
@@ -131,14 +136,14 @@ export const analyzePolicyStructured = async (structuredPolicyText) => {
   return analyzeWithAI('security-policy', structuredPolicyText);
 };
 
-// ✨ NEW FUNCTION FOR CODE REMEDIATION ✨
 export const generateCodeRemediation = async (vulnerableCode, vulnerabilityDescription) => {
   const persona = "You are an expert software security engineer and code auditor specializing in fixing vulnerabilities.";
   const task = `
 Given the following vulnerable code snippet and a description of its issue, rewrite the code to fix the vulnerability.
-Your response must be a valid JSON object with a single key "fixedCode", which contains the complete, corrected code as a string.
-Do not include any other text, markdown, or explanations outside of this JSON object.`;
-
+Your response MUST be a single, valid JSON object containing exactly one key: "fixedCode".
+The value of "fixedCode" MUST be a string containing the complete, corrected code.
+Do not add comments to the code unless they are essential for understanding the fix.
+Do not include any other text, markdown, or explanations outside of the JSON object.`;
   const prompt = `
 ${persona}
 ${task}
@@ -152,6 +157,7 @@ VULNERABLE CODE:
 ${vulnerableCode}
 \`\`\`
 ---
+JSON Response:
 `;
 
   const controller = new AbortController();
@@ -185,15 +191,25 @@ ${vulnerableCode}
 export const scoreCodeWithAI = async (codeSnippet) => {
   const persona = "You are a senior software architect and code analysis expert.";
   const task = `
-Analyze the provided code snippet and score it from 1 to 10 on three distinct metrics:
-1.  **Security**: How well does it resist common vulnerabilities and attacks? (1=very insecure, 10=highly secure)
-2.  **Performance**: How efficient is the code in terms of speed and resource usage? (1=very slow, 10=highly performant)
-3.  **Readability**: How easy is the code to understand and maintain? (1=very confusing, 10=very clear)
+Analyze the provided code snippet and score it on three metrics. The scores must be integers from 1 to 10.
+1.  **Security**: Resistance to vulnerabilities (1=very insecure, 10=highly secure).
+2.  **Performance**: Efficiency and resource usage (1=very slow, 10=highly performant).
+3.  **Readability**: Ease of understanding and maintenance (1=very confusing, 10=very clear).
 
-Your response MUST be a valid JSON object with three keys: "securityScore", "performanceScore", and "readabilityScore".
-Do not include any other text, markdown, or explanations outside of this JSON object.`;
+Your response MUST be a single, valid JSON object and nothing else.
+The JSON object must contain exactly three keys: "securityScore", "performanceScore", and "readabilityScore", and their values must be integers.
 
-  const prompt = `
+Example of a perfect response:
+\`\`\`json
+{
+  "securityScore": 8,
+  "performanceScore": 7,
+  "readabilityScore": 9
+}
+\`\`\`
+`;
+
+const prompt = `
 ${persona}
 ${task}
 
@@ -204,6 +220,7 @@ ${codeSnippet}
 \`\`\`
 ---
 `;
+
 
   try {
     const response = await fetch(`${API_BASE_URL}/generate`, {

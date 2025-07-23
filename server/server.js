@@ -83,18 +83,22 @@ app.post('/api/query', async(req,res) => {
     try{
         console.log('Received query: ', query);
 
-                const prompt = ChatPromptTemplate.fromTemplate(`
-            You are an expert auditing assistant. Your role is to analyze the provided context from a document and answer the user's question based *only* on that context.
-            If the context does not contain the answer, state clearly that you cannot answer based on the provided information.
-            Do not invent or assume any information outside the given context.
+const prompt = ChatPromptTemplate.fromTemplate(`
+You are an expert auditing assistant. Your role is to analyze the provided context from a document and answer the user's question based *only* on that context.
 
-            Context:
-            {context}
+- Your answer should be clear, concise, and directly address the user's question.
+- Use basic markdown for formatting (like bullet points using '*' or bolding using '**') to make the answer easy to read.
+- Do not include any preamble like "Based on the context..." or "The answer is...". Provide the answer directly.
+- If the context does not contain the answer, your *only* response MUST be: "The provided document does not contain information to answer this question."
+- Do not invent or assume any information outside the given context.
 
-            Question: {input}
+Context:
+{context}
 
-            Answer:
-        `);
+Question: {input}
+
+Answer:
+`);
 
         const combineDocsChain = await createStuffDocumentsChain({
             llm:llm,
