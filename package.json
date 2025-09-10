@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@langchain/community": "^0.3.49",
+    "@langchain/core": "^0.3.66",
+    "axios": "^1.10.0",
+    "ethers": "^6.15.0",
+    "faiss-node": "^0.5.1",
+    "firebase": "^12.0.0",
+    "langchain": "^0.3.30",
+    "lucide-react": "^0.525.0",
+    "multer": "^2.0.2",
+    "pdf-parse": "^1.1.1",
+    "zustand": "^5.0.6"
+  }
+}
