@@ -55,7 +55,7 @@ const PROMPT_TEMPLATES = {
   }
 };
 
-export const analyzeWithAI = async (auditType, inputText, model = 'llama3') => {
+export const analyzeWithAI = async (auditType, inputText, model = 'llama3:latest') => {
   const template = PROMPT_TEMPLATES[auditType];
   if (!template) {
     throw new Error(`Invalid audit type: ${auditType}`);
@@ -80,13 +80,13 @@ ${inputText}
   `;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  const timeout = setTimeout(() => controller.abort(), 60000);
 
   try {
     const response = await fetch(`${API_BASE_URL}/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, model: 'qwen2.5:7b', format: 'json' }),
+      body: JSON.stringify({ prompt, model, format: 'json' }),
       signal: controller.signal
     });
     clearTimeout(timeout);
@@ -133,7 +133,7 @@ export const analyzePolicyStructured = async (structuredPolicyText) => {
   return analyzeWithAI('security-policy', structuredPolicyText);
 };
 
-export const generateCodeRemediation = async (vulnerableCode, vulnerabilityDescription) => {
+export const generateCodeRemediation = async (vulnerableCode, vulnerabilityDescription,  model = 'llama3:latest') => {
   const persona = "You are an expert software security engineer and code auditor specializing in fixing vulnerabilities.";
   const task = `
 Given the following vulnerable code snippet and a description of its issue, rewrite the code to fix the vulnerability.
@@ -164,7 +164,7 @@ JSON Response:
     const response = await fetch(`${API_BASE_URL}/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, model: 'qwen2.5:7b' }),
+      body: JSON.stringify({ prompt, model }),
       signal: controller.signal
     });
     clearTimeout(timeout);
@@ -183,7 +183,7 @@ JSON Response:
   }
 };
 
-export const scoreCodeWithAI = async (codeSnippet) => {
+export const scoreCodeWithAI = async (codeSnippet, model = 'llama3:latest') => {
   const persona = "You are a senior software architect and code analysis expert.";
   const task = `
 Analyze the provided code snippet and score it on three metrics. The scores must be integers from 1 to 10.
@@ -220,7 +220,7 @@ ${codeSnippet}
     const response = await fetch(`${API_BASE_URL}/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, model: 'qwen2.5:7b' }),
+      body: JSON.stringify({ prompt, model }),
     });
 
     if (!response.ok) {

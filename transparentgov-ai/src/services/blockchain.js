@@ -2,7 +2,82 @@
 import { ethers } from 'ethers';
 import useAppStore from '../store/useAppStore';
 
-const AUDIT_LOG_ADDRESS = '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B';
+// 1. PASTE YOUR DEPLOYED CONTRACT ADDRESS HERE
+const AUDIT_LOG_ADDRESS = '0x10d81cDC1eF81755711eD4028274067096fdE9fb';
+
+// 2. PASTE YOUR CONTRACT ABI HERE
+const AUDIT_LOG_ABI = [
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "auditId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "auditHash",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "logger",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "AuditLogged",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_auditHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "logAudit",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "auditHashes",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
 
 const getSigner = async () => {
   if (!window.ethereum) {
@@ -36,13 +111,14 @@ export const logAuditToBlockchain = async (auditData) => {
     const signer = await getSigner();
     const auditHash = hashAuditData(auditData);
 
-    console.log('Generated Audit Hash:', auditHash);
+    // 3. CREATE A CONTRACT INSTANCE
+    const auditLogContract = new ethers.Contract(AUDIT_LOG_ADDRESS, AUDIT_LOG_ABI, signer);
 
-      const tx = await signer.sendTransaction({
-      to: AUDIT_LOG_ADDRESS,
-      value: ethers.parseEther('0.00001'), 
-      data: auditHash, 
-    });
+    console.log('Generated Audit Hash:', auditHash);
+    console.log('Sending transaction to AuditLog contract...');
+
+    // 4. CALL THE SMART CONTRACT FUNCTION
+    const tx = await auditLogContract.logAudit(auditHash);
 
     console.log('Transaction sent! Waiting for confirmation...', tx);
     await tx.wait(1); 
