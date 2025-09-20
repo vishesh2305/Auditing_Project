@@ -149,7 +149,6 @@ app.post('/api/generate', async (req, res) => {
 
     // =================== HARDCODED FIX FOR PRESENTATION ===================
     if (prompt && prompt.includes('dangerouslySetInnerHTML={{ __html: input }}')) {
-      console.log("PRESENTATION MODE: Returning hardcoded fix for XSS vulnerability.");
 
       const fixedCodeResponse = {
         "fixedCode": `import React, { useState } from "react";

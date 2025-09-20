@@ -1,0 +1,24 @@
+import string
+
+def word_search(doc_list, keyword):
+    result = []
+    for article in doc_list:
+        words = article.split()
+        for word in words:
+            if word.lower().strip(string.punctuation) == keyword.lower():
+                result.append(article)
+                break
+    return result
+
+
+
+
+
+
+Access to company systems and data must be granted on a need-to-know basis and authorized by management. Strong passwords are mandatory and should be updated regularly. Multi-factor authentication must be enabled for critical systems and accounts. Sharing login credentials is strictly prohibited.
+
+
+
+
+
+
